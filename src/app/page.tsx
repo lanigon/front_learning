@@ -90,14 +90,14 @@ const StakeUnstakeTab = ({ isStaking, toggleStaking }) => {
           address: staadd,
           abi: staabi,
           functionName: 'stake',
-          args: [formattedAmount],
+          args: [amount*1000000000000000000],
         });
       } else {
         writeContract({
           address: staadd,
           abi: staabi,
           functionName: 'unstake',
-          args: [formattedAmount],
+          args: [amount*1000000000000000000],
         });
       }
 
@@ -146,10 +146,17 @@ export default function Home() {
   const { writeContract } = useWriteContract()
   // const { data} = useReadContract()
   
+  const { data, isError, isLoading } = useReadContract({
+    address: staadd,
+    abi: staabi,
+    functionName: 'balanceOf',
+    args: [address],
+  })
+  console.log(data)
   const toggleStaking = () => {
     setIsStaking(!isStaking); // 切换质押/提取状态
   };
-
+  
   const claim = ()=>{
     if(status == "connected") {
       message.error("The total interest is 0. We will send airdrop every month.")
@@ -193,7 +200,7 @@ export default function Home() {
         <div className="bg-gray-800 rounded-lg p-6 shadow-xl max-w-md w-full">
           {activeTab === 'airdrop' && (
             <div className="text-white">
-              <h2 className="text-xl font-bold mb-4">Claim Your Airdrop</h2>
+              <h2 className="text-xl font-bold mb-4">Claim Your Airdrop{data}</h2>
               {/* Airdrop 相关内容 */}
               <div className="space-y-4">
                 <input
