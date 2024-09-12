@@ -515,7 +515,7 @@ export const staabi = [
 	}
 ]
 
-export const staadd = "0xe1c78c06e415d33ded458a0c47dd17c3db1419b0"
+export const staadd = "0x0398e1Ddc71330187c86595273EF9BC728715Ce9"
 
 import { ethers } from "ethers"
 

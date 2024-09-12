@@ -89,19 +89,18 @@ const StakeUnstakeTab = ({ isStaking, toggleStaking }) => {
         writeContract({
           address: staadd,
           abi: staabi,
-          functionName: 'burn',
-          args: [10000000000000000000000000],
+          functionName: 'stake',
+          args: [formattedAmount],
         });
       } else {
         writeContract({
           address: staadd,
           abi: staabi,
           functionName: 'unstake',
-          args: [10000000n],
+          args: [formattedAmount],
         });
       }
 
-      setMessage(`${actionLabel} operation successful!`);
     } catch (error) {
       console.error('Transaction failed:', error);
       setMessage(`Failed to ${actionLabel.toLowerCase()}. Please try again.`);
@@ -145,7 +144,7 @@ export default function Home() {
   const [isStaking, setIsStaking] = useState(true); // 控制质押和提取的切换状态
   const [num, setnum] = useState();
   const { writeContract } = useWriteContract()
-  const { data} = useReadContract()
+  // const { data} = useReadContract()
   
   const toggleStaking = () => {
     setIsStaking(!isStaking); // 切换质押/提取状态
