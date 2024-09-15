@@ -28,12 +28,21 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useEffect, useState } from "react";
 import { createPublicClient, http, parseEther } from "viem";
 import { readContract } from "viem/actions";
+interface TabButtonProps {
+  isActive: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}
+interface StakeUnstakeTabProps {
+  isStaking: boolean;
+  toggleStaking: () => void;
+}
 const client = createPublicClient({
   chain: sepolia,  // 或你所连接的网络
   transport: http(),  // 使用 HTTP 作为传输层
 });
 const contract = getInfura(staadd , staabi)
-const TabButton = ({ isActive, onClick, children }) => {
+const TabButton: React.FC<TabButtonProps> = ({ isActive, onClick, children }) => {
   return (
     <button
       onClick={onClick}
@@ -47,10 +56,10 @@ const TabButton = ({ isActive, onClick, children }) => {
 };
 
 // STAKING Tab 内容
-const StakeUnstakeTab = ({ isStaking, toggleStaking }) => {
+const StakeUnstakeTab: React.FC<StakeUnstakeTabProps> = ({ isStaking, toggleStaking }) => {
   const {address, status, isConnecting} = useAccount();
-  const [amount, setAmount] = useState('');
-  const [message, setMessage] = useState('');
+  const [amount, setAmount] = useState<number | undefined>(undefined);  // 限制为 number 或 undefined
+  const [message, setMessage] = useState<string | undefined>('')  // 限制 message 为 string
   const { writeContract } = useWriteContract()
   const { data, isError, isLoading } = useReadContract({
     address: staadd,
@@ -58,12 +67,7 @@ const StakeUnstakeTab = ({ isStaking, toggleStaking }) => {
     functionName: 'getBalance',
     args: [address],
   })
-  const { dat} = useReadContract({
-    address: staadd,
-    abi: staabi,
-    functionName: 'getStakedBalance',
-    args: [address],
-  })
+  
   const functionName = isStaking ? 'stakeTokens' : 'unstakeTokens'; // 切换调用的合约函数
   const actionLabel = isStaking ? 'Stake' : 'Unstake'; // 切换按钮显示的文本
 
@@ -77,7 +81,7 @@ const StakeUnstakeTab = ({ isStaking, toggleStaking }) => {
   // const { write } = useContractWrite(config);
 
   const handleAction = () => {
-    if (!amount || amount <= 0) {
+    if (!amount ||amount <= 0) {
       setMessage(`Please enter a valid amount to ${actionLabel.toLowerCase()}.`);
       return;
     }
@@ -111,13 +115,13 @@ const StakeUnstakeTab = ({ isStaking, toggleStaking }) => {
     <div className="text-white">
       <h2 className="text-xl font-bold mb-4">{actionLabel} Your Tokens </h2>
       <div className="space-y-4">
-        <input
-          type="number"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          className="bg-transparent border-none text-3xl outline-none w-full mb-4 p-2"
-          placeholder={`Enter amount to ${actionLabel.toLowerCase()}`}
-        />
+      <input
+        type="number"
+        value={amount ?? ''}  // 如果 amount 是 undefined，显示空字符串
+        onChange={(e) => setAmount(e.target.value ? Number(e.target.value) : undefined)}  // 确保将字符串转换为 number
+        className="bg-transparent border-none text-3xl outline-none w-full mb-4 p-2"
+        placeholder={`Enter amount to ${actionLabel.toLowerCase()}`}
+      />
         <button
           onClick={handleAction}
           className="bg-gradient-to-r from-blue-500 to-green-500 text-white w-full py-3 rounded-lg"
@@ -200,7 +204,7 @@ export default function Home() {
         <div className="bg-gray-800 rounded-lg p-6 shadow-xl max-w-md w-full">
           {activeTab === 'airdrop' && (
             <div className="text-white">
-              <h2 className="text-xl font-bold mb-4">Claim Your Airdrop{data}</h2>
+              <h2 className="text-xl font-bold mb-4">Claim Your Airdrop</h2>
               {/* Airdrop 相关内容 */}
               <div className="space-y-4">
                 <input
